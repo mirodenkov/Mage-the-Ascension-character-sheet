@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mage: The Ascension — Character Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-deep:          #0c0a10;
+    --bg-panel:         #13101a;
+    --bg-panel-alt:     #1a1526;
+    --border:           rgba(201,168,76,0.18);
+    --accent-gold:      #c9a84c;
+    --accent-gold-dim:  rgba(201,168,76,0.35);
+    --accent-crimson:   #7a1a1a;
+    --accent-crimson-light: #c06060;
+    --text-primary:     #e8dcc8;
+    --text-muted:       #7a6e5e;
+    --text-label:       #b8a888;
+    --hex-empty:        rgba(201,168,76,0.08);
+    --hex-filled:       #c9a84c;
+    --hex-border:       rgba(201,168,76,0.3);
+    --tab-h:            52px;
+    --header-h:         72px;
+  }
+
+  body.light-mode {
+    --bg-deep:          #f4f0e6;
+    --bg-panel:         #fdf8ef;
+    --bg-panel-alt:     #ede8da;
+    --border:           rgba(140,100,30,0.22);
+    --accent-gold:      #8a6a10;
+    --accent-gold-dim:  rgba(140,106,16,0.35);
+    --accent-crimson:   #8a2020;
+    --accent-crimson-light: #a04040;
+    --text-primary:     #2a2018;
+    --text-muted:       #8a7a5e;
+    --text-label:       #6a5a3a;
+    --hex-empty:        rgba(140,100,30,0.1);
+    --hex-filled:       #8a6a10;
+    --hex-border:       rgba(140,100,30,0.35);
+  }
+
+  body.light-mode ::-webkit-scrollbar-track { background: #ede8da; }
+  body.light-mode ::-webkit-scrollbar-thumb { background: rgba(140,100,30,0.3); }
+  body.light-mode select option { background: #fdf8ef; color: #2a2018; }
+  body.light-mode input[type="date"]::-webkit-calendar-picker-indicator { filter: none; }
+
+  html, body { height: 100%; background: var(--bg-deep); color: var(--text-primary); font-family: 'EB Garamond', serif; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.25); border-radius: 3px; }
+
+  select option { background: #1a1526; color: var(--text-primary); }
+
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5) sepia(1) saturate(0.5); cursor: pointer; }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; color: #000; }
+    .tab-content { max-height: none !important; overflow: visible !important; }
+  }
+
+  /* ── Ornament dividers ── */
+  .ornament { color: var(--accent-gold); opacity: 0.4; font-size: 12px; letter-spacing: 0.3em; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<script type="text/babel" src="mage-shared.jsx"></script>
+<script type="text/babel" src="mage-chronicle.jsx"></script>
+<script type="text/babel" src="mage-spheres.jsx"></script>
+<script type="text/babel" src="mage-advantages.jsx"></script>
+<script type="text/babel" src="mage-magic.jsx"></script>
+<script type="text/babel" src="mage-connections.jsx"></script>
+<script type="text/babel" src="mage-story.jsx"></script>
+<script type="text/babel" src="mage-sanctum.jsx"></script>
+<script type="text/babel" src="mage-journal.jsx"></script>
+<script type="text/babel" src="mage-advancement.jsx"></script>
+
+<script type="text/babel">
+
+// ── Default character ──────────────────────────────────────────────────────
+const DEFAULT_CHAR = {
+  name:'', player:'', chronicle:'', nature:'', demeanor:'', essence:'Dynamic',
+  tradition:'', affiliation:'', concept:'', portrait: null,
+  attributes:{ strength:1,dexterity:1,stamina:1,charisma:1,manipulation:1,appearance:1,perception:1,intelligence:1,wits:1 },
+  talents:{ alertness:0,athletics:0,awareness:0,brawl:0,empathy:0,expression:0,intimidation:0,leadership:0,streetwise:0,subterfuge:0 },
+  talentsSpecialties:{},
+  skills:{ animalKen:0,crafts:0,drive:0,etiquette:0,firearms:0,meditation:0,meleeWeapons:0,research:0,stealth:0,survival:0 },
+  skillsSpecialties:{},
+  knowledges:{ academics:0,computer:0,cosmology:0,enigmas:0,esoterica:0,investigation:0,law:0,medicine:0,occult:0,technology:0 },
+  knowledgesSpecialties:{},
+  spheres:{ correspondence:0,entropy:0,forces:0,life:0,matter:0,mind:0,prime:0,spirit:0,time:0 },
+  sphereNotes:{},
+  arete:1, quintessence:0, paradox:0,
+  willpower:{ permanent:5, current:5 },
+  health:{ bruised:'',hurt:'',injured:'',wounded:'',mauled:'',crippled:'',incapacitated:'' },
+  backgrounds:[], merits:[], flaws:[],
+  paradigm:'', magicalStyle:'', practiceDescription:'', instruments:'', quintessenceSources:'',
+  rotes:[], npcs:[],
+  backstory:'', awakening:'', earlyLife:'', mageLife:'', currentSituation:'',
+  birthplace:'', dob:'', awakeningDate:'', awakeningLocation:'',
+  goals:'', fears:'', personality:'', ties:'', worldview:'',
+  sanctum:{ name:'', rating:0, description:'', tass:'', locations:'' },
+  equipment:[], wonders:[],
+  sessions:[], xpLog:[], totalXP:0, spentXP:0,
+};
+
+// ── Storage ────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'mage_sheet_v1';
+const loadChar = () => {
+  try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...DEFAULT_CHAR, ...JSON.parse(s) } : DEFAULT_CHAR; }
+  catch { return DEFAULT_CHAR; }
+};
+const saveChar = (c) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } catch {} };
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+const TABS = [
+  { id:'chronicle',    label:'Chronicle' },
+  { id:'spheres',      label:'Spheres' },
+  { id:'advantages',   label:'Advantages' },
+  { id:'magic',        label:'Magick' },
+  { id:'connections',  label:'Connections' },
+  { id:'story',        label:'Story' },
+  { id:'sanctum',      label:'Sanctum' },
+  { id:'journal',      label:'Journal' },
+  { id:'advancement',  label:'Advancement' },
+];
+
+// ── App ────────────────────────────────────────────────────────────────────
+function App() {
+  const [char, setChar] = React.useState(loadChar);
+  const [activeTab, setActiveTab] = React.useState('chronicle');
+  const [notification, setNotification] = React.useState(null);
+  const [lightMode, setLightMode] = React.useState(() => localStorage.getItem('mage_light_mode') === 'true');
+  const importRef = React.useRef();
+
+  React.useEffect(() => {
+    document.body.classList.toggle('light-mode', lightMode);
+    localStorage.setItem('mage_light_mode', lightMode);
+  }, [lightMode]);
+
+  // Auto-save
+  React.useEffect(() => { saveChar(char); }, [char]);
+
+  const update = (key, value) => setChar(prev => ({ ...prev, [key]: value }));
+
+  const notify = (msg, color = 'var(--accent-gold)') => {
+    setNotification({ msg, color });
+    setTimeout(() => setNotification(null), 2500);
+  };
+
+  // JSON Export
+  const exportJSON = () => {
+    const blob = new Blob([JSON.stringify(char, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${char.name || 'mage-character'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    notify('Character exported!');
+  };
+
+  // JSON Import
+  const importJSON = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        setChar({ ...DEFAULT_CHAR, ...data });
+        notify('Character imported!');
+      } catch {
+        notify('Invalid JSON file.', '#c04040');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  // Print
+  const printSheet = () => window.print();
+
+  // Reset
+  const resetChar = () => {
+    if (window.confirm('Clear all character data and start fresh?')) {
+      setChar(DEFAULT_CHAR);
+      notify('Sheet cleared.');
+    }
+  };
+
+  const tabContent = {
+    chronicle:   <ChronicleTab char={char} update={update} />,
+    spheres:     <SpheresTab char={char} update={update} />,
+    advantages:  <AdvantagesTab char={char} update={update} />,
+    magic:       <MagicTab char={char} update={update} />,
+    connections: <ConnectionsTab char={char} update={update} />,
+    story:       <StoryTab char={char} update={update} />,
+    sanctum:     <SanctumTab char={char} update={update} />,
+    journal:     <JournalTab char={char} update={update} />,
+    advancement: <AdvancementTab char={char} update={update} />,
+  };
+
+  // Active sphere count for badge
+  const activeSpheres = Object.values(char.spheres).filter(v => v > 0).length;
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-deep)' }}>
+
+      {/* ── Header ── */}
+      <header className="no-print" style={{
+        height: 'var(--header-h)',
+        background: 'linear-gradient(180deg, #1a1426 0%, var(--bg-deep) 100%)',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center',
+        padding: '0 24px', gap: '20px', flexShrink: 0,
+        position: 'sticky', top: 0, zIndex: 50,
+      }}>
+        {/* Logo / Title */}
+        <div style={{ flex: '0 0 auto' }}>
+          <div style={{ fontFamily: 'Cinzel, serif', fontSize: '15px', letterSpacing: '0.15em', color: 'var(--accent-gold)', lineHeight: 1.1 }}>
+            MAGE: THE ASCENSION
+          </div>
+          <div style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', letterSpacing: '0.3em', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '2px' }}>
+            20th Anniversary · Character Sheet
+          </div>
+        </div>
+
+        {/* Character name display */}
+        <div style={{
+          flex: 1, textAlign: 'center',
+          fontFamily: 'Cinzel, serif', fontSize: '18px',
+          color: char.name ? 'var(--text-primary)' : 'var(--text-muted)',
+          letterSpacing: '0.08em', fontStyle: char.name ? 'normal' : 'italic',
+        }}>
+          {char.name || 'Unnamed Mage'}
+          {char.tradition && (
+            <span style={{ fontFamily: 'EB Garamond, serif', fontSize: '13px', color: 'var(--text-muted)', marginLeft: '12px', fontStyle: 'italic', letterSpacing: '0.02em' }}>
+              · {char.tradition}
+            </span>
+          )}
+        </div>
+
+        {/* Arete badge */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          background: 'rgba(201,168,76,0.08)', border: '1px solid var(--border)',
+          borderRadius: '4px', padding: '6px 14px',
+        }}>
+          <span style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', letterSpacing: '0.2em', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Arete</span>
+          <span style={{ fontFamily: 'Cinzel, serif', fontSize: '22px', color: 'var(--accent-gold)', lineHeight: 1 }}>{char.arete}</span>
+        </div>
+
+        {/* Action buttons */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <GhostBtn small onClick={() => setLightMode(m => !m)}>{lightMode ? '☽ Dark' : '☀ Light'}</GhostBtn>
+          <GhostBtn small onClick={exportJSON}>⬇ Export JSON</GhostBtn>
+          <GhostBtn small onClick={() => importRef.current.click()}>⬆ Import JSON</GhostBtn>
+          <GhostBtn small onClick={printSheet}>⎙ Print</GhostBtn>
+          <GhostBtn small danger onClick={resetChar}>✕ Reset</GhostBtn>
+        </div>
+        <input ref={importRef} type="file" accept=".json" onChange={importJSON} style={{ display: 'none' }} />
+      </header>
+
+      {/* ── Tab Bar ── */}
+      <nav className="no-print" style={{
+        height: 'var(--tab-h)',
+        background: 'var(--bg-panel)',
+        borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'stretch',
+        padding: '0 16px', gap: '0',
+        flexShrink: 0, overflowX: 'auto',
+        position: 'sticky', top: 'var(--header-h)', zIndex: 40,
+      }}>
+        {TABS.map(tab => {
+          const isActive = tab.id === activeTab;
+          return (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              style={{
+                background: 'transparent', border: 'none', outline: 'none',
+                borderBottom: isActive ? '2px solid var(--accent-gold)' : '2px solid transparent',
+                color: isActive ? 'var(--accent-gold)' : 'var(--text-muted)',
+                fontFamily: 'Cinzel, serif', fontSize: '10px',
+                letterSpacing: '0.15em', textTransform: 'uppercase',
+                padding: '0 18px', cursor: 'pointer',
+                transition: 'color 0.15s, border-color 0.15s',
+                whiteSpace: 'nowrap', flexShrink: 0,
+              }}
+            >
+              {tab.label}
+              {tab.id === 'spheres' && activeSpheres > 0 && (
+                <span style={{
+                  marginLeft: '6px', background: 'rgba(201,168,76,0.2)', border: '1px solid var(--border)',
+                  borderRadius: '10px', padding: '1px 6px', fontSize: '9px', color: 'var(--accent-gold)',
+                }}>{activeSpheres}</span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* ── Content ── */}
+      <main style={{ flex: 1, padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+        {tabContent[activeTab]}
+      </main>
+
+      {/* ── Footer ── */}
+      <footer className="no-print" style={{
+        borderTop: '1px solid var(--border)',
+        padding: '10px 24px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'var(--bg-panel)',
+      }}>
+        <div style={{ fontFamily: 'EB Garamond, serif', fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+          Mage: The Ascension 20th Anniversary Edition · Data auto-saved locally
+        </div>
+        <div style={{ display: 'flex', gap: '20px', fontFamily: 'Cinzel, serif', fontSize: '9px', letterSpacing: '0.12em', color: 'var(--text-muted)' }}>
+          <span>XP: <span style={{ color: 'var(--accent-gold)' }}>{(char.totalXP || 0) - (char.spentXP || 0)}</span> remaining</span>
+          <span>Paradox: <span style={{ color: char.paradox > 0 ? '#c04040' : 'var(--text-muted)' }}>{char.paradox}</span></span>
+          <span>Quintessence: <span style={{ color: 'var(--accent-gold)' }}>{char.quintessence}</span></span>
+        </div>
+      </footer>
+
+      {/* ── Notification ── */}
+      {notification && (
+        <div style={{
+          position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+          background: 'var(--bg-panel-alt)', border: `1px solid ${notification.color}`,
+          borderRadius: '4px', padding: '10px 24px',
+          fontFamily: 'Cinzel, serif', fontSize: '11px', letterSpacing: '0.1em',
+          color: notification.color, zIndex: 1000,
+          boxShadow: `0 4px 24px rgba(0,0,0,0.4)`,
+        }}>
+          {notification.msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<div id="root"></div>
+</body>
+</html>
